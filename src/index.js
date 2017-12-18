@@ -51,9 +51,7 @@ const applyUpdateAt = (path,fn,obj,parents=[]) => {
     }else if (isRename){
 
       if (obj && obj[key]){
-        const result = Object.assign({},obj,{[renameTo]:obj[key]})
-        delete result[key]
-        return result
+        return omit(key,Object.assign({},obj,{[renameTo]:obj[key]}))
       }else{
         // don't modify
         return obj
