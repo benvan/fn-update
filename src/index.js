@@ -27,8 +27,8 @@ const applyUpdateAt = (path,fn,obj,parents=[]) => {
   else {
     const key = path[0]
     const replacement = applyUpdateAt(path.slice(1),fn,obj && obj[key],[obj,...parents])
-    const isDelete = replacement[symbols.DELETE]
-    const renameTo = replacement[symbols.RENAME]
+    const isDelete = replacement && replacement[symbols.DELETE]
+    const renameTo = replacement && replacement[symbols.RENAME]
     const isRename = Boolean(renameTo)
 
 
