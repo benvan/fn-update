@@ -88,10 +88,13 @@ const shapeToUpdates = (path,shape) => {
 
 const updateShape = (shape) => updates(shapeToUpdates([],shape))
 
+const map = (fn) => (arr) => arr.map(fn)
+
 module.exports = {
   makePath,
   updateAt,
   updates,
   updateShape,
+  map,
   ops
 }
