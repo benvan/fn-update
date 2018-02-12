@@ -1,6 +1,6 @@
 const assert = require('assert');
 
-const {updates,updateAt,ops,makePath} = require('../src/index')
+const {updates,updateAt,ops,makePath,updateShape} = require('../src/index')
 
 describe('updateAt', function() {
 
@@ -112,6 +112,41 @@ describe('updates', () => {
     })
   })
 
+})
+
+describe('pattern', () => {
+  it('should apply updates as supplied by pattern', () => {
+    const example = {
+      name: 'Ben',
+      age: 29,
+      favourite:{
+        color: 'blue',
+        pet:{
+          kind: 'dog',
+          name: 'spot'
+        }
+      }
+    }
+
+    assert.deepEqual(
+      updateShape({
+        age: (age) => age+1,
+        favourite: updateAt(['pet','name'],'charlie')
+      })(example),
+      {
+        name:'Ben',
+        age: 30,
+        favourite:{
+          color: 'blue',
+          pet:{
+            kind:'dog',
+            name:'charlie'
+          }
+        }
+      }
+    )
+
+  })
 })
 
 describe('makePath', () => {

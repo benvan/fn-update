@@ -1,5 +1,3 @@
-const _ = require('lodash')
-
 const argsOrArray = (args) => (args.length === 1 && Array.isArray(args[0])) ? args[0] : args
 
 const makePath = (strOrPath) => typeof strOrPath === 'string' ? strOrPath.split('.').map(x => isNaN(x) ? x : Number(x)) : strOrPath
@@ -77,9 +75,23 @@ const updates = (...fnsOrArray) => (obj) => argsOrArray(fnsOrArray).reduce((acc,
   return cur(acc)
 },obj)
 
+const shapeToUpdates = (path,shape) => {
+  if (typeof shape === 'object'){
+    const listOfUpdates = []
+    for (let key in shape){
+      listOfUpdates.push(...shapeToUpdates([...path,key],shape[key]))
+    }
+    return listOfUpdates
+  }
+  return [updateAt(path,shape)]
+}
+
+const updateShape = (shape) => updates(shapeToUpdates([],shape))
+
 module.exports = {
   makePath,
   updateAt,
   updates,
+  updateShape,
   ops
 }
