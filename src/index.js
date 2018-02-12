@@ -65,7 +65,7 @@ const applyUpdateAt = (path,fn,obj,parents=[]) => {
 }
 
 const updateAt = (path,fn) => (obj) => {
-  return applyUpdateAt(typeof path === "string" ? [path] : path,fn,obj)
+  return applyUpdateAt(Array.isArray(path) ? path : [path],fn,obj)
 }
 
 const updates = (...fnsOrArray) => (obj) => argsOrArray(fnsOrArray).reduce((acc,cur) => {
