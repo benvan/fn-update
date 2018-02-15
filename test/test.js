@@ -1,6 +1,6 @@
 const assert = require('assert');
 
-const {updates,updateAt,ops,makePath,updateShape} = require('../src/index')
+const {updates,updateAt,ops,makePath,updateDeep} = require('../src/index')
 
 describe('updateAt', function() {
 
@@ -106,6 +106,30 @@ describe('updates', () => {
     assert.equal(updates([update1,update2,update3])(1), 9)
   })
 
+  it('should treat an object as a flat key->updateAt map', () => {
+    const source = {
+      age: 10,
+      name: 'ben',
+      replacedObject: {
+        not_here_anymore: true
+      }
+    }
+    const transform = updates({
+      name: (x) => x.toUpperCase(),
+      age: 20,
+      replacedObject:{
+        value: 10
+      }
+    })
+    assert.deepEqual(transform(source),{
+      name: 'BEN',
+      age: 20,
+      replacedObject:{
+        value: 10
+      }
+    })
+  })
+
   it('should explode if provided a non-function argument as an update', () => {
     assert.throws(() => {
       updates(['hi'])(1)
@@ -114,7 +138,7 @@ describe('updates', () => {
 
 })
 
-describe('pattern', () => {
+describe('updateDeep', () => {
   it('should apply updates as supplied by pattern', () => {
     const example = {
       name: 'Ben',
@@ -129,7 +153,7 @@ describe('pattern', () => {
     }
 
     assert.deepEqual(
-      updateShape({
+      updateDeep({
         age: (age) => age+1,
         favourite: updateAt(['pet','name'],'charlie')
       })(example),

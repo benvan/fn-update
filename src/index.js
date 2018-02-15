@@ -64,29 +64,59 @@ const applyUpdateAt = (path,fn,obj,parents=[]) => {
   }
 }
 
-const updateAt = (path,fn) => (obj) => {
-  return applyUpdateAt(Array.isArray(path) ? path : [path],fn,obj)
+const updateAt = (path,fn) => {
+  const arrPath = Array.isArray(path) ? path : [path]
+  return (obj) => applyUpdateAt(arrPath,fn,obj)
 }
 
-const updates = (...fnsOrArray) => (obj) => argsOrArray(fnsOrArray).reduce((acc,cur) => {
-  if (typeof cur !== 'function'){
-    throw new Error('Received non-function in updates(...) call')
-  }
-  return cur(acc)
-},obj)
-
-const shapeToUpdates = (path,shape) => {
-  if (typeof shape === 'object'){
-    const listOfUpdates = []
-    for (let key in shape){
-      listOfUpdates.push(...shapeToUpdates([...path,key],shape[key]))
+const updateShallow = (shape) => updates(Object.keys(shape).map(k => updateAt(k,shape[k])))
+const updateList = (listOfFns) => {
+  // Pre-check for misuse
+  listOfFns.forEach(f => {
+    if (typeof f !== 'function'){
+      throw new Error('Received non-function in updates(...) call. (You provided a list of transform functions, but one of those transforms was not a function). I saw ' + f)
     }
-    return listOfUpdates
-  }
-  return [updateAt(path,shape)]
+  })
+  return (obj) => listOfFns.reduce((acc,cur) => cur(acc),obj)
 }
 
-const updateShape = (shape) => updates(shapeToUpdates([],shape))
+
+const updates = (...fnsOrArrayOrObject) => {
+  return Array.isArray(fnsOrArrayOrObject[0])
+    ? updateList(fnsOrArrayOrObject[0])
+    : typeof fnsOrArrayOrObject[0] === 'object'
+      ? updateShallow(fnsOrArrayOrObject[0])
+      : updateList(fnsOrArrayOrObject)
+}
+
+
+// THIS SHOULD REALLY BE USED SPARINGLY.
+// Using updates({ some: value, other: value, netsted: updates({ a:1, b:2  }) }) seems preferable in _most_ scenarios
+// Mostly because you need to remember to lift values if you intend them to be treated as values, not further nested updates!
+/* Consider:
+  const newUser = getUserFromSomewhere('123')
+  const newDatabase = updateDeep({
+    entities:{
+      users:{
+        ['123']:newUser // Watch out!
+      }
+    }
+  })(database)
+*/
+// A casual eye would lead you to expect this replaces database.entities.users['123'] with newUser - but it does not:
+// Since updateDeep is recursive, `newUser` describes the tree of deeper updates.
+// So newUser would be _merged_ into whatever is already in database.entities.users['123']
+// The alternative is to _lift_ newUser, such that the leaf level update becomes () => newUser, but this still requires the
+// developer to be aware of this caveat.
+const updateDeep = (patternOrValue,parents=[]) => {
+  if (typeof patternOrValue === 'object'){
+    return updates(Object.keys(patternOrValue).map(
+      k => updateAt(k,updateDeep(patternOrValue[k]))
+    ))
+  }else{
+    return updateAt([],patternOrValue)
+  }
+}
 
 const map = (fn) => (arr) => arr.map(fn)
 
@@ -94,7 +124,9 @@ module.exports = {
   makePath,
   updateAt,
   updates,
-  updateShape,
+  updateDeep,
+  // Deprecated
+  updateShape:updateDeep,
   map,
   ops
 }
