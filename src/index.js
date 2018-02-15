@@ -74,7 +74,9 @@ const updateList = (listOfFns) => {
   // Pre-check for misuse
   listOfFns.forEach(f => {
     if (typeof f !== 'function'){
-      throw new Error('Received non-function in updates(...) call. (You provided a list of transform functions, but one of those transforms was not a function). I saw ' + f)
+			const e = new Error('Received non-function in updates(...) call. (You provided a list of transform functions, but one of those transforms was not a function).')
+			e.valueInError = f
+			throw e
     }
   })
   return (obj) => listOfFns.reduce((acc,cur) => cur(acc),obj)
