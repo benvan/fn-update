@@ -120,7 +120,17 @@ const updateDeep = (patternOrValue,parents=[]) => {
   }
 }
 
-const map = (fn) => (arr) => arr.map(fn)
+const map = (fn) => (arr) => {
+	if (!arr){
+		return arr
+	}else if (!Array.isArray(arr)){
+		const e = new Error('Attempted to map over non-array')
+		e.valueInError = arr
+		throw e
+	}else{
+		return arr.map(fn)
+	}
+}
 
 module.exports = {
   makePath,
