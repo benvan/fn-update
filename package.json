@@ -1,6 +1,6 @@
 {
   "name": "fn-update",
-  "version": "1.6.0",
+  "version": "1.7.0",
   "description": "Expressive, immutable update library",
   "main": "dist/index.js",
   "scripts": {
