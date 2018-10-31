@@ -132,6 +132,23 @@ const map = (fn) => (arr) => {
 	}
 }
 
+const mapObj = (fn) => (obj) => {
+  if (!obj){
+    return obj
+  }else if (typeof obj !== 'object'){
+    const e = new Error('Attempted to mapObj over non-object')
+    e.valueInError = obj
+    throw e
+  }else{
+    const updater = {}
+    for (k in obj){
+      const key = k
+      updater[k] = (value) => fn(value,key)
+    }
+    return updates(updater)(obj)
+  }
+}
+
 module.exports = {
   makePath,
   updateAt,
@@ -140,5 +157,6 @@ module.exports = {
   // Deprecated
   updateShape:updateDeep,
   map,
+  mapObj,
   ops
 }

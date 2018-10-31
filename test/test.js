@@ -1,6 +1,6 @@
 const assert = require('assert');
 
-const {updates,updateAt,ops,makePath,updateDeep} = require('../src/index')
+const {updates,updateAt,ops,makePath,updateDeep,mapObj} = require('../src/index')
 
 describe('updateAt', function() {
 
@@ -171,6 +171,23 @@ describe('updateDeep', () => {
     )
 
   })
+  it('should allow null as a value', () => {
+    const example = {
+      name: 'Ben',
+      age: 10
+    }
+
+    assert.deepEqual(
+      updateDeep({
+        name: null,
+      })(example),
+      {
+        name:null,
+        age: 10
+      }
+    )
+
+  })
 })
 
 describe('makePath', () => {
@@ -180,4 +197,35 @@ describe('makePath', () => {
   it('should turn numeric components into numbers', () => {
     assert.deepStrictEqual(makePath('a.0.x'), ['a',0,'x'])
   })
+})
+
+describe('mapObj', () => {
+  it('should produce an updater for each value/key pair in passed object', () => {
+
+    const example = {
+      name: 'Ben',
+      age: 10,
+      notHereAnymore: 'value',
+      ignored: 'some value'
+    }
+
+    assert.deepEqual(
+      mapObj((value,key) => {
+        switch (key){
+          case 'name': return 'BEN';
+          case 'age': return 30;
+          case 'notHereAnymore': return ops.delete;
+          default: 
+            return value
+        }
+      })(example),
+      {
+        name: 'BEN',
+        age: 30,
+        ignored: 'some value'
+      }
+    )
+
+  })
+
 })

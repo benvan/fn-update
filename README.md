@@ -10,6 +10,54 @@ Because `{...extending, stuff: 'can', be:{ really:{ tedious:{ especially:{ when:
  - all updates are curried functions... so you can pass them around, filter them, compose them, reuse them..
  - special treatment of `delete` and `rename` operations
 
+## Idiomatic use cases
+
+By far the most valuable use-case for fn-update is transforming data. 
+
+For example:
+ - transforming state in a Redux reducer
+ - tweaking an API response in a promise chain
+ - reusing or combining transformations 
+ 
+```javascript
+// some illustrative examples:
+
+// 1. Transforming an api response with nested values
+const toUpperCase = (value) => value.toUpperCase()
+fetchJson('https://some-api.com/person.json')
+    .then(updates({
+      name: toUpperCase,
+      address: updates({
+        postCode: toUpperCase,
+        country: 'GB',
+        planet: ops.delete
+      })
+    }))
+
+
+
+// 2. Updating redux state in a reducer:
+// Instead of creating new objects every time, the updaters
+// only modify what's necessary. This likely means fewer renders!
+const reducer = (state,action) => ({
+
+  'USER_LOADING' : (result) => updates({
+    ready:false
+  }),
+  'USER_LOADED' : (result) => updates({
+    ready: true,
+    user: result
+  }),
+  'UPDATE_ADDRESS' : (result) => updates({
+    updatesSinceLastSave: (c) => c+1,
+    user: updates({
+      address: result
+    })
+  })
+  
+})[action.type](action.payload)(state)
+``` 
+
 ## Usage
 
 ```javascript
