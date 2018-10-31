@@ -1,1 +1,2 @@
 dummy-entry-so-that-npm-doesnt-use-the-gitignore-instead-of-this-file
+.idea
