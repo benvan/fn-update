@@ -97,17 +97,53 @@ const {updateAt,updates} = require('fn-update')
 // Multiple `updateAt` calls can be composed with `updates`
 const oldAndBoringBen = updates([
   updateAt('age',92),
-  updateAt('preferences','none')
+  updateAt(['preferences','food'],'rusks'),
+  updateAt(['preferences','whisky','region'],'none')
 ])(person)
 ```
 
 ```javascript
+const {updateAt,updates} = require('fn-update')
+
+// `updates` can also take a pattern of updaters instead of a list
+const oldAndBoringBen = updates({
+  age: 92,
+  preferences: updates({
+    food: 'rusks',
+    whisky: updateAt('region','none')
+  })
+})(person)
+```
+
+
+```javascript
 // You can generate update functions any way you like.
-// These functions all do the same thing:
+
+// All the functions here do the same thing:
+
+// This function:
 updates( ['colour','orange juice','toothpaste'].map(
   pref => updateAt(['preferences',pref],'all')
 ))
 
+// is equivalent to:
+updateAt(['preferences'], updates({
+  color: 'all',
+  'orange juice': 'all',
+  'toothpaste': 'all'
+}))
+
+// is equivalent to:
+updates({
+  preferences: updates({
+    'color': 'all',
+    'orange juice': 'all',
+    'toothpaste': 'all'
+  })
+})
+
+// is (almost) equivalent to:
+// ( this one always creates a new `prefs` object, whereas the others won't if prefs isn't materially changed )
 updateAt(['preferences'], (prefs) => ({
   ...prefs,
   'colour': 'all',
@@ -115,12 +151,15 @@ updateAt(['preferences'], (prefs) => ({
   'toothpaste': 'all'
 }))
 
+// is equivalent to:
 updates([
   updateAt(['preferences','colour'], 'all'),
   updateAt(['preferences','orange juice'], 'all'),
   updateAt(['preferences','toothpaste'], 'all'),
   false && updateAt(['preferences'],'oh-no-we-gon-lose-everything!')
 ].filter(Boolean))
+
+
 ```
 
 ```javascript
