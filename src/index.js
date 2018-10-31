@@ -111,7 +111,7 @@ const updates = (...fnsOrArrayOrObject) => {
 // The alternative is to _lift_ newUser, such that the leaf level update becomes () => newUser, but this still requires the
 // developer to be aware of this caveat.
 const updateDeep = (patternOrValue,parents=[]) => {
-  if (typeof patternOrValue === 'object' && !Array.isArray(patternOrValue)){
+  if (typeof patternOrValue === 'object' && patternOrValue !== null && !Array.isArray(patternOrValue)){
     return updates(Object.keys(patternOrValue).map(
       k => updateAt(k,updateDeep(patternOrValue[k]))
     ))
