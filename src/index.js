@@ -141,7 +141,7 @@ const mapObj = (fn) => (obj) => {
     throw e
   }else{
     const updater = {}
-    for (k in obj){
+    for (let k in obj){
       const key = k
       updater[k] = (value) => fn(value,key)
     }
