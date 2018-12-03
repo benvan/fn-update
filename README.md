@@ -2,10 +2,50 @@
 Functional updates for immutable objects
 
 ## Why?
-Because `{...extending, stuff: 'can', be:{ really:{ tedious:{ especially:{ when: 'deeply nested'}}}}}`
+
+Because:
+
+```javascript
+const makeYourPoint = (extending) => ({
+  ...extending, 
+  stuff: 'can', 
+  be:{
+    ...stuff.be,
+    really:{
+      ...stuff.be.really,
+      tedious:{ 
+        ...stuff.be.really.tedious,
+        especially:{
+          ...stuff.be.really.tedious.especially,
+          when: {
+            deeply: 'nested!',
+            'point was already made?': (
+              extending.stuff.be.really.tedious.especially.when &&
+              extending.stuff.be.really.tedious.especaially.when.deeply)  === 'nested!'
+          }
+        }
+      }
+    }
+  }
+})
+```
+
+Instead, how about this?
+
+```javascript
+const makeYourPoint = updates({
+  stuff: 'can',
+  be: updateAt(['really','tedious','especially','when'], (whenObj) => ({
+    deeply: 'nested!',
+    'point was already made?': whenObj && whenObj.deeply === 'nested!'
+  }))
+})
+```
+
+## Sweet. What else?
 
 `fn-update` is cool (useful?) because:
- - updates preserve identity, recursively - especially useful for libraries like `redux`
+ - *updates preserve identity(!)*, recursively - especially useful for libraries like `Redux`. No unnecessary re-renders.
  - the interface is flexible - update functions are decoupled from the structure they are updating (i.e. you do not need to supply updates in the same nested structure as the object you are updating). This is especially useful for manipulating normalized json structures
  - all updates are curried functions... so you can pass them around, filter them, compose them, reuse them..
  - special treatment of `delete` and `rename` operations
