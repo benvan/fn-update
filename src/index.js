@@ -20,6 +20,22 @@ const ops = {
   renameTo: (key) => ({[symbols.RENAME]:key})
 }
 
+const getAt = (...path) => {
+  const steps = Array.isArray(path[0]) ? path[0] : path
+  return (obj) => {
+    let el = obj
+    for (let step of steps){
+      if (el && Object.hasOwnProperty.call(el,step)) {
+        el = el[step]
+      }else{
+        return undefined
+      }
+    }
+    return el
+  }
+  
+}
+
 const applyUpdateAt = (path,fn,obj,parents=[]) => {
   if (path.length === 0) return typeof fn === 'function' ? fn(obj,...parents) : fn
   else {
@@ -158,5 +174,6 @@ module.exports = {
   updateShape:updateDeep,
   map,
   mapObj,
-  ops
+  ops,
+  getAt
 }
