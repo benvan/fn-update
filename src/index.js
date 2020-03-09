@@ -107,6 +107,13 @@ const updates = (...fnsOrArrayOrObject) => {
       : updateList(fnsOrArrayOrObject)
 }
 
+updates.nonNil = (...args) => {
+  const updater = updates(...args)
+  return (obj) => (typeof obj === 'undefined' || obj === null)
+    ? obj
+    : updater(obj)
+}
+
 
 // THIS SHOULD REALLY BE USED SPARINGLY.
 // Using updates({ some: value, other: value, netsted: updates({ a:1, b:2  }) }) seems preferable in _most_ scenarios

@@ -138,6 +138,20 @@ describe('updates', () => {
 
 })
 
+describe('updates(...).nonNil', () => {
+  it('should just return input when input is nil', () => {
+    const fn = updates.nonNil({x :  1})
+    
+    assert.strictEqual(fn(null), null)
+    assert.strictEqual(fn(undefined),undefined)
+  })
+  it('should call into updates when value non nil', () => {
+    const fn = updates.nonNil({x :  1})
+    
+    assert.deepEqual(fn({a:1}), {a:1,x:1})
+  })
+})
+
 describe('updateDeep', () => {
   it('should apply updates as supplied by pattern', () => {
     const example = {

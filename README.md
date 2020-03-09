@@ -222,3 +222,14 @@ const clarkKent = updateAt(['aliases',1],ops.delete)(superman)
 // although you could of course do the same thing with a filter...
 const alsoClarkKent = updateAt(['aliases'],aliases => aliases.filter(x => x !== 'Kal El'))(superman)
 ```
+
+```javascript
+// You can ignore null/undefined values by using 'nonNil'
+const makePersonOlder = updates.nonNil({
+	age: (age) => age + 10
+})
+
+const stillUndefined = makePersonOlder(undefined)
+const sillNull = makePersonOlder(null)
+
+```
